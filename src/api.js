@@ -24,13 +24,12 @@ function getAssetsHistory(coin) {
   return fetch(
     `${url}/assets/${coin}/history?interval=h1&start=${start}&end=${end}`
   )
-    .then(res => res.json())
-    .then(res => res.data)
-  }
-
+    .then((res) => res.json())
+    .then((res) => res.data)
+}
 
 export default {
   getAssets,
   getAssetsCripto,
-  getAssetsHistory
+  getAssetsHistory,
 }

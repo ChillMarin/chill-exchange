@@ -3,13 +3,13 @@
     <template v-if="asset.id">
       <div class="flex flex-col sm:flex-row justify-around items-center">
         <div class="flex flex-col items-center">
-          <img :src="
-              `https://static.coincap.io/assets/icons/${asset.symbol.toLowerCase()}@2x.png`
-            "
-                class="w-20 h-20 mr-5"
-                :alt="asset.name" />
+          <img
+            :src="`https://static.coincap.io/assets/icons/${asset.symbol.toLowerCase()}@2x.png`"
+            class="w-20 h-20 mr-5"
+            :alt="asset.name"
+          />
           <h1 class="text-5xl">
-              {{ asset.name }}
+            {{ asset.name }}
             <small class="sm:mr-2 text-gray-500">{{ asset.symbol }}</small>
           </h1>
         </div>
@@ -38,7 +38,7 @@
             </li>
             <li class="flex justify-between">
               <b class="text-gray-600 mr-10 uppercase">Variación 24hs</b>
-              <span>{{ asset.changePercent24Hr | percent}}</span>
+              <span>{{ asset.changePercent24Hr | percent }}</span>
             </li>
           </ul>
         </div>
@@ -104,19 +104,22 @@ export default {
   computed: {
     min() {
       return Math.min(
-        ...this.history.map(h => parseFloat(h.priceUsd).toFixed(2))
+        ...this.history.map((h) => parseFloat(h.priceUsd).toFixed(2))
       )
     },
 
     max() {
       return Math.max(
-        ...this.history.map(h => parseFloat(h.priceUsd).toFixed(2))
+        ...this.history.map((h) => parseFloat(h.priceUsd).toFixed(2))
       )
     },
 
     avg() {
-      return this.history.reduce((a, b) => a + parseFloat(b.priceUsd), 0) / this.history.length
-    }
+      return (
+        this.history.reduce((a, b) => a + parseFloat(b.priceUsd), 0) /
+        this.history.length
+      )
+    },
   },
 
   created() {
@@ -128,9 +131,9 @@ export default {
       //$route represetna la ruta  y todos los valores de la ruta q llamo  :id // y param nos dice q parametro queremos q esid
       const id = this.$route.params.id
       // aqui se llena el array con toda la informacion solicitada del api de coincap
-     // api.getAssetsCripto(id).then((asset) => (this.asset = asset))
-     //Esto vainas loca q no entendi pero sirve para calcular min y max and average
-     Promise.all([api.getAssetsCripto(id), api.getAssetsHistory(id)]).then(
+      // api.getAssetsCripto(id).then((asset) => (this.asset = asset))
+      //Esto vainas loca q no entendi pero sirve para calcular min y max and average
+      Promise.all([api.getAssetsCripto(id), api.getAssetsHistory(id)]).then(
         ([asset, history]) => {
           this.asset = asset
           this.history = history
