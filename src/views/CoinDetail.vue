@@ -1,11 +1,16 @@
 <template>
   <div class="flex-col">
-    <template>
+    <template v-if="asset.id">
       <div class="flex flex-col sm:flex-row justify-around items-center">
         <div class="flex flex-col items-center">
-          <img class="w-20 h-20 mr-5" />
+          <img :src="
+              `https://static.coincap.io/assets/icons/${asset.symbol.toLowerCase()}@2x.png`
+            "
+                class="w-20 h-20 mr-5"
+                :alt="asset.name" />
           <h1 class="text-5xl">
-            <small class="sm:mr-2 text-gray-500"></small>
+              {{ asset.name }}
+            <small class="sm:mr-2 text-gray-500">{{ asset.symbol }}</small>
           </h1>
         </div>
 
@@ -13,27 +18,27 @@
           <ul>
             <li class="flex justify-between">
               <b class="text-gray-600 mr-10 uppercase">Ranking</b>
-              <span></span>
+              <span># {{ asset.rank }}</span>
             </li>
             <li class="flex justify-between">
               <b class="text-gray-600 mr-10 uppercase">Precio actual</b>
-              <span></span>
+              <span> {{ asset.priceUsd | dollar }}</span>
             </li>
             <li class="flex justify-between">
               <b class="text-gray-600 mr-10 uppercase">Precio más bajo</b>
-              <span></span>
+              <span>{{ min | dollar }}</span>
             </li>
             <li class="flex justify-between">
               <b class="text-gray-600 mr-10 uppercase">Precio más alto</b>
-              <span></span>
+              <span>{{ max | dollar }}</span>
             </li>
             <li class="flex justify-between">
               <b class="text-gray-600 mr-10 uppercase">Precio Promedio</b>
-              <span></span>
+              <span>{{ avg | dollar }}</span>
             </li>
             <li class="flex justify-between">
               <b class="text-gray-600 mr-10 uppercase">Variación 24hs</b>
-              <span></span>
+              <span>{{ asset.changePercent24Hr | percent}}</span>
             </li>
           </ul>
         </div>
@@ -96,6 +101,24 @@ export default {
     }
   },
 
+  computed: {
+    min() {
+      return Math.min(
+        ...this.history.map(h => parseFloat(h.priceUsd).toFixed(2))
+      )
+    },
+
+    max() {
+      return Math.max(
+        ...this.history.map(h => parseFloat(h.priceUsd).toFixed(2))
+      )
+    },
+
+    avg() {
+      return this.history.reduce((a, b) => a + parseFloat(b.priceUsd), 0) / this.history.length
+    }
+  },
+
   created() {
     this.getCoin()
   },
@@ -105,7 +128,14 @@ export default {
       //$route represetna la ruta  y todos los valores de la ruta q llamo  :id // y param nos dice q parametro queremos q esid
       const id = this.$route.params.id
       // aqui se llena el array con toda la informacion solicitada del api de coincap
-      api.getAssetsCripto(id).then((asset) => (this.asset = asset))
+     // api.getAssetsCripto(id).then((asset) => (this.asset = asset))
+     //Esto vainas loca q no entendi pero sirve para calcular min y max and average
+     Promise.all([api.getAssetsCripto(id), api.getAssetsHistory(id)]).then(
+        ([asset, history]) => {
+          this.asset = asset
+          this.history = history
+        }
+      )
     },
   },
 }

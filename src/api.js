@@ -12,7 +12,25 @@ function getAssetsCripto(coin) {
     .then((res) => res.data)
 }
 
+function getAssetsHistory(coin) {
+  // new date nos da la hora del momento
+  const now = new Date()
+  // Timestamp de la fecha de ahora
+  const end = now.getTime()
+  // aqio se setea es para 1 dia anterios la fecha
+  now.setDate(now.getDate() - 1)
+  const start = now.getTime()
+
+  return fetch(
+    `${url}/assets/${coin}/history?interval=h1&start=${start}&end=${end}`
+  )
+    .then(res => res.json())
+    .then(res => res.data)
+  }
+
+
 export default {
   getAssets,
   getAssetsCripto,
+  getAssetsHistory
 }
