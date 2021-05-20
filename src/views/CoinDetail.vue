@@ -1,8 +1,8 @@
 <template>
   <div class="flex-col">
-      <div class="flex justify-center">
-          <bounce-loader :loading="isLoading" :color="'#68d391'" :size="100" />
-      </div>
+    <div class="flex justify-center">
+      <bounce-loader :loading="isLoading" :color="'#68d391'" :size="100" />
+    </div>
     <template v-if="!isLoading">
       <div class="flex flex-col sm:flex-row justify-around items-center">
         <div class="flex flex-col items-center">
@@ -88,26 +88,58 @@
         </div>
       </div>
 
-      <line-chart class="my-10"
+      <line-chart
+        class="my-10"
         :colors="['orange']"
-        :min ="min"
-        :max ="max"
-        :data="history.map(h => [h.date, parseFloat(h.priceUsd).toFixed(2)])" />
+        :min="min"
+        :max="max"
+        :data="history.map((h) => [h.date, parseFloat(h.priceUsd).toFixed(2)])"
+      />
+
+      <h3 class="text-xl my-10">Mejores Ofertas de Cambio</h3>
+      <table>
+        <tr
+          v-for="m in markets"
+          :key="`${m.exchageId}-${m.priceUsd}`"
+          class="border-b"
+        >
+          <td>
+            <b>{{ m.exchangeId }}</b>
+          </td>
+          <td>{{ m.priceUsd | dollar }}</td>
+          <td>{{ m.baseSymbol }} / {{ m.quoteSymbol }}</td>
+          <td>
+            <px-button 
+                :is-loading="m.isLoading || false"
+                @custom-click="getWebsite(m)"
+                v-if="!m.url" >
+                <slot> Obtener Link </slot>
+            </px-button>
+            <a v-else class="hover:underline text-green-600" target="_blanck">
+                {{ m.url }}
+            </a>
+          </td>
+        </tr>
+      </table>
     </template>
   </div>
 </template>
 
 <script>
+import PxButton from '@/components/PxButton'
 import api from '@/api'
 
 export default {
   name: 'CoinDetail',
+
+  components: { PxButton },
 
   data() {
     return {
       isLoading: false,
       asset: {},
       history: [],
+      markets: [],
     }
   },
 
@@ -137,6 +169,18 @@ export default {
   },
 
   methods: {
+      getWebsite (exchange) {
+          this.$set(exchange, 'isLoading', true)
+          return api.getExchange(exchange.exchangeId)
+          .then(res => {
+              // se usa para evitar el problema de reactividad para poder trackear la url q se a;ade al objeto
+              this.$set(exchange, 'url', res.exchangeUrl)
+          })
+          .finally(() => {
+              this.$set(exchange, 'isLoading', false)
+          })
+      },
+
     getCoin() {
       //$route represetna la ruta  y todos los valores de la ruta q llamo  :id // y param nos dice q parametro queremos q esid
       const id = this.$route.params.id
@@ -144,10 +188,15 @@ export default {
       // aqui se llena el array con toda la informacion solicitada del api de coincap
       // api.getAssetsCripto(id).then((asset) => (this.asset = asset))
       //Esto vainas loca q no entendi pero sirve para calcular min y max and average
-      Promise.all([api.getAssetsCripto(id), api.getAssetsHistory(id)])
-        .then(([asset, history]) => {
+      Promise.all([
+        api.getAssetsCripto(id),
+        api.getAssetsHistory(id),
+        api.getMarkets(id),
+      ])
+        .then(([asset, history, markets]) => {
           this.asset = asset
           this.history = history
+          this.markets = markets
         })
         .finally(() => (this.isLoading = false))
     },
