@@ -26,8 +26,8 @@ export default {
           to: { name: 'coin-detail', params: { id: 'ethereum' } },
         },
         {
-          title: 'XRP',
-          to: { name: 'coin-detail', params: { id: 'ripple' } },
+          title: 'USDT',
+          to: { name: 'coin-detail', params: { id: 'tether' } },
         },
       ],
     }
