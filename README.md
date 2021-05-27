@@ -1,4 +1,4 @@
-# platzi-exchange
+# Chill-Exchange
 
 ## Project setup
 ```
